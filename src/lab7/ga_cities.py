@@ -10,6 +10,7 @@ and then use it to generate a population of cities.
 Please comment your code in the fitness function to explain how are you making sure each criterion is 
 fulfilled. Clearly explain in comments which line of code and variables are used to fulfill each criterion.
 """
+from math import ceil, sqrt
 import matplotlib.pyplot as plt
 import pygad
 import numpy as np
@@ -19,17 +20,62 @@ from pathlib import Path
 
 sys.path.append(str((Path(__file__) / ".." / ".." / "..").resolve().absolute()))
 
-from src.lab5.landscape import elevation_to_rgba
+from src.lab5.landscape import elevation_to_rgba, get_elevation
 
 
 def game_fitness(cities, idx, elevation, size):
-    fitness = 0.0001  # Do not return a fitness of 0, it will mess up the algorithm.
+    fitness = 1.0001  # Do not return a fitness of 0, it will mess up the algorithm.
     """
     Create your fitness function here to fulfill the following criteria:
     1. The cities should not be under water
     2. The cities should have a realistic distribution across the landscape
     3. The cities may also not be on top of mountains or on top of each other
     """
+
+    cords = solution_to_cities(cities, size)
+    neighbors = cords
+
+    # Variables to represent certain criteria
+    # These values so far have worked the best for me
+    underWaterElevation = 6
+    mountainElevation = 7
+    desiredDistance = 45
+
+    for cord in cords:
+        cityX = cord[0]
+        cityY = cord[1]
+        
+        # Get the elevation for the city then scale it to provide a more realistic value
+        scaledElevation = elevation[cityX, cityY] * 10
+        
+        # First case checking
+        # Checking to see if the elevation is under water based off my observations of that value
+        if scaledElevation < underWaterElevation:
+            # Lower elevations will has less impact on the fitness function
+            fitness += scaledElevation
+        elif scaledElevation > mountainElevation:
+            # Scale the fitness drastically for higher elevations in an attempt to completely avoid mountains
+            fitness += (scaledElevation - 25) * -1
+        elif scaledElevation > underWaterElevation:
+            # Scale the fitness slightly for the in between case
+            fitness += (scaledElevation - 10) * -1
+
+        for neighbor in neighbors:
+            neighborX = neighbor[0]
+            neighborY = neighbor[1]
+
+            # Distance between neighbor and city
+            distance = sqrt(pow((cityY-neighborY), 2) + pow((cityX-neighborX), 2))
+
+            # Scale the distance by an arbitary value
+            distanceScale = distance / 200
+            
+            # Distance will be zero when it first calculates itself as a neighbor
+            if(distance > 0):
+                if distance < desiredDistance:
+                    # Scale the fitness function based on the distance between the cities that are too close
+                    fitness += distanceScale
+
     return fitness
 
 
@@ -91,6 +137,7 @@ def solution_to_cities(solution, size):
     cities = np.array(
         list(map(lambda x: [int(x / size[0]), int(x % size[1])], solution))
     )
+
     return cities
 
 
@@ -113,7 +160,7 @@ if __name__ == "__main__":
 
     size = 100, 100
     n_cities = 10
-    elevation = []
+    elevation = get_elevation(size)
     """ initialize elevation here from your previous code"""
     # normalize landscape
     elevation = np.array(elevation)
