@@ -1,6 +1,6 @@
 """ Lab 10: Save people
 You can save people from heart disease by training a model to predict whether a person has heart disease or not.
-The dataset is available at src/lab8/heart.csv
+The dataset is available at src/lab10/heart.csv
 Train a model to predict whether a person has heart disease or not and test its performance.
 You can usually improve the model by normalizing the input data. Try that and see if it improves the performance. 
 """
@@ -11,7 +11,8 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 
-data = pd.read_csv("C:\Lab\GAME450_CMPSC441_Labs\src\lab10\heart.csv")
+data = pd.read_csv("src/lab10/heart.csv")
+
 
 # Transform the categorical variables into dummy variables.
 print(data.head())
@@ -33,6 +34,13 @@ sklearn_model.fit(x_train, y_train)
 # Accuracy
 print("Accuracy of model: {}\n".format(sklearn_model.score(x_test, y_test)))
 
+""" Improve the model by normalizing the input data. 
+If the performace does not improve explain why as a comment in the code. """
+
+y = df.HeartDisease.values
+x = df.drop(["HeartDisease"], axis=1)
+
+# Normalize the input data before creating a test train split (Use the same random state)
 """ Improve the model by normalizing the input data. """
 
 x_train = (x_train - x_train.min()) / (x_train.max() - x_train.min())
