@@ -9,3 +9,16 @@ Note that observation/state is a tuple of the form (player1_health, player2_heal
 Action is simply the weapon selected by the player.
 Reward is the reward for the player for that turn.
 '''
+import sys
+from pathlib import Path
+
+sys.path.append(str((Path(__file__) / ".." / ".." / "..").resolve().absolute()))
+
+from src.lab11.pygame_combat import run_turn
+from src.lab11.turn_combat import Combat
+
+
+
+def run_episode(playerOne, playerTwo):
+    currentGame = Combat()
+    return run_turn(currentGame, playerOne, playerTwo)
