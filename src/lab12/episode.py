@@ -21,4 +21,13 @@ from src.lab11.turn_combat import Combat
 
 def run_episode(playerOne, playerTwo):
     currentGame = Combat()
-    return run_turn(currentGame, playerOne, playerTwo)
+    returnResult = []
+    result = run_turn(currentGame, playerOne, playerTwo)
+    returnResult.append(result)
+    while 2 > 1:
+        if(result[0][0] == 0 or result[0][1] == 0):
+            return returnResult
+        else:
+            result = run_turn(currentGame, playerOne, playerTwo)
+            returnResult.append(result)
+    return returnResult

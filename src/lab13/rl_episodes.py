@@ -12,20 +12,20 @@ If you reward every action you may end up in a situation where the agent
 will always choose the action that gives the highest reward. Ironically,
 this may lead to the agent losing the game.
 '''
+
+import numpy as np
+import random
+from collections import defaultdict
 import sys
 from pathlib import Path
 
 # line taken from turn_combat.py
-sys.path.append(str((Path(__file__) / ".." / "..").resolve().absolute()))
+sys.path.append(
+    str((Path(__file__) / ".." / ".." / "..").resolve().absolute()))
 
-from lab11.pygame_combat import PyGameComputerCombatPlayer
-from lab11.turn_combat import CombatPlayer
-from lab12.episode import run_episode
-
-from collections import defaultdict
-import random
-import numpy as np
-
+from src.lab11.pygame_combat import PyGameComputerCombatPlayer
+from src.lab11.turn_combat import CombatPlayer
+from src.lab12.episode import run_episode
 
 class PyGameRandomCombatPlayer(PyGameComputerCombatPlayer):
     def __init__(self, name):
@@ -71,17 +71,38 @@ def run_episodes(n_episodes):
         Collect the returns for each state-action pair in a dictionary of dictionaries where the keys are states and
             the values are dictionaries of actions and their returns.
         After all episodes have been run, calculate the average return for each state-action pair.
-        Return the action values as a dictionary of dictionaries where the keys are states and 
+        Return the action values as a dictionary of dictionaries where the keys are states and
             the values are dictionaries of actions and their values.
     '''
 
-    return action_values
+    combined_dict = defaultdict(dict)
+
+    # For each n we want to run a random episode
+    for _ in range(n_episodes):
+        # Run episode with RandomCombatPlayer
+        episode = run_random_episode(PyGameRandomCombatPlayer(
+            'Player'), PyGameComputerCombatPlayer('Opponent'))
+        
+        history = get_history_returns(episode)
+        # Combine histories into a single dictionary
+        for key, value in history.items():
+            combined_dict[key].update(value)
+
+
+    combined_dict = dict(combined_dict)
+    print(combined_dict)
+
+
+
+    # Dictionary of dictionaries, key -> states, value -> dictionaries of actions and their values
+    return combined_dict
 
 
 def get_optimal_policy(action_values):
     optimal_policy = defaultdict(int)
     for state in action_values:
-        optimal_policy[state] = max(action_values[state], key=action_values[state].get)
+        optimal_policy[state] = max(
+            action_values[state], key=action_values[state].get)
     return optimal_policy
 
 
