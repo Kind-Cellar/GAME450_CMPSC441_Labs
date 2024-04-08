@@ -90,12 +90,16 @@ def run_episodes(n_episodes):
 
 
     combined_dict = dict(combined_dict)
-    print(combined_dict)
 
-
+    action_values = {}
+    for state, actions in combined_dict.items():
+        action_values[state] = {}
+        for action, returns_list in actions.items():
+            average_return = sum(returns_list) / len(returns_list)
+            action_values[state][action] = average_return
 
     # Dictionary of dictionaries, key -> states, value -> dictionaries of actions and their values
-    return combined_dict
+    return action_values
 
 
 def get_optimal_policy(action_values):
