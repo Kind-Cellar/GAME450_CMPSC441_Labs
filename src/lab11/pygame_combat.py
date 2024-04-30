@@ -1,3 +1,4 @@
+from journal import createJournalEntry
 from sprite import Sprite
 import pygame
 from pathlib import Path
@@ -49,6 +50,7 @@ def run_turn(currentGame, player, opponent):
 
 
 def run_pygame_combat(combat_surface, screen, player_sprite):
+    rounds = 0
     currentGame = Combat()
     player = PyGameHumanCombatPlayer("Legolas")
     """ Add a line below that will reset the player object
@@ -64,3 +66,7 @@ def run_pygame_combat(combat_surface, screen, player_sprite):
         draw_combat_on_window(combat_surface, screen, player_sprite, opponent_sprite)
 
         run_turn(currentGame, player, opponent)
+        rounds = rounds + 1
+    
+    health = player.health
+    return createJournalEntry(rounds, health)

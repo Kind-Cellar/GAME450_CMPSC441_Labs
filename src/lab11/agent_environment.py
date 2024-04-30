@@ -1,12 +1,13 @@
 import os
 import sys
+from journal import createJournalEntry
 import pygame
 import random
 from sprite import Sprite
 from pygame_combat import run_pygame_combat
 from pygame_human_player import PyGameHumanPlayer
-from lab5.landscape import get_landscape, elevation_to_rgba, get_elevation
 from pygame_ai_player import PyGameAIPlayer
+import numpy as np
 
 from pathlib import Path
 
@@ -14,7 +15,9 @@ sys.path.append(str((Path(__file__) / ".." / "..").resolve().absolute()))
 
 script_directory = os.path.dirname(__file__)
 
-from lab2.cities_n_routes import get_randomly_spread_cities, get_routes
+from lab2.cities_n_routes import get_routes
+from lab7.ga_cities import game_fitness, setup_GA, solution_to_cities
+from lab5.landscape import get_landscape, elevation_to_rgba, get_elevation
 
 get_combat_bg = lambda pixel_map: elevation_to_rgba(
     get_elevation(pixel_map), "RdPu"
@@ -94,7 +97,24 @@ if __name__ == "__main__":
         "Forthyr",
     ]
 
-    city_locations = get_randomly_spread_cities(size, len(city_names))
+    elevation = get_elevation(size)
+    elevation = np.array(elevation)
+    elevation = (elevation - elevation.min()) / (elevation.max() - elevation.min())
+    fitness = lambda solution, idx: game_fitness(
+        solution, idx, elevation=elevation, size=size
+    )
+    fitness_function, ga_instance = setup_GA(fitness, len(city_names), size)
+
+    # Show one of the initial solutions.
+    random_solution = ga_instance.initial_population[0]
+    cities = solution_to_cities(random_solution, size)
+
+    # Run the GA to optimize the parameters of the function.
+    ga_instance.run()
+    best_solution = ga_instance.best_solution()[0]
+
+    #city_locations = get_randomly_spread_cities(size, len(city_names))
+    city_locations = solution_to_cities(best_solution, size)
     routes = get_routes(city_locations)
 
     random.shuffle(routes)
@@ -115,6 +135,8 @@ if __name__ == "__main__":
         cities=city_locations,
         routes=routes,
     )
+
+    journalEntries = []
 
     while True:
         action = player.selectAction(state)
@@ -153,8 +175,9 @@ if __name__ == "__main__":
             state.current_city = state.destination_city
 
         if state.encounter_event:
-            run_pygame_combat(combat_surface, screen, player_sprite)
+            journalEntry = run_pygame_combat(combat_surface, screen, player_sprite)
             state.encounter_event = False
+            journalEntries.append(journalEntry)
         else:
             player_sprite.draw_sprite(screen)
         pygame.display.update()
