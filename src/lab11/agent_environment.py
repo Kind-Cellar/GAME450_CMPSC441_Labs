@@ -1,3 +1,4 @@
+import os
 import sys
 import pygame
 import random
@@ -10,6 +11,8 @@ from pygame_ai_player import PyGameAIPlayer
 from pathlib import Path
 
 sys.path.append(str((Path(__file__) / ".." / "..").resolve().absolute()))
+
+script_directory = os.path.dirname(__file__)
 
 from lab2.cities_n_routes import get_randomly_spread_cities, get_routes
 
@@ -71,7 +74,7 @@ if __name__ == "__main__":
     black = 1, 1, 1
     start_city = 0
     end_city = 9
-    sprite_path = "assets/lego.png"
+    sprite_path = "../../assets/lego.png"
     sprite_speed = 1
 
     screen = setup_window(width, height, "Game World Gen Practice")

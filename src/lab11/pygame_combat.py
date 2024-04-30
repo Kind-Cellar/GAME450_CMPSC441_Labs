@@ -1,12 +1,11 @@
+from sprite import Sprite
 import pygame
 from pathlib import Path
+from turn_combat import CombatPlayer, Combat
+from pygame_ai_player import PyGameAICombatPlayer
+from pygame_human_player import PyGameHumanCombatPlayer
 
-from .sprite import Sprite
-from .turn_combat import CombatPlayer, Combat
-from .pygame_ai_player import PyGameAICombatPlayer
-from .pygame_human_player import PyGameHumanCombatPlayer
-
-AI_SPRITE_PATH = Path("assets/ai.png")
+AI_SPRITE_PATH = Path("../../assets/ai.png")
 
 pygame.font.init()
 game_font = pygame.font.SysFont("Comic Sans MS", 15)
