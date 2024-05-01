@@ -1,6 +1,5 @@
 import os
 import sys
-from journal import createJournalEntry
 import pygame
 import random
 from sprite import Sprite
@@ -25,7 +24,6 @@ get_combat_bg = lambda pixel_map: elevation_to_rgba(
 
 pygame.font.init()
 game_font = pygame.font.SysFont("Comic Sans MS", 15)
-
 
 def get_landscape_surface(size):
     landscape = get_landscape(size)
@@ -103,6 +101,8 @@ if __name__ == "__main__":
     fitness = lambda solution, idx: game_fitness(
         solution, idx, elevation=elevation, size=size
     )
+
+    # Incorporation of GA 
     fitness_function, ga_instance = setup_GA(fitness, len(city_names), size)
 
     # Show one of the initial solutions.
@@ -137,22 +137,23 @@ if __name__ == "__main__":
     )
 
     journalEntries = []
+    destination = city_locations[state.destination_city]
 
     while True:
         action = player.selectAction(state)
         if 0 <= int(chr(action)) <= 9:
             if int(chr(action)) != state.current_city and not state.travelling:
-                ''' 
-                Check if a route exist between the current city and the destination city.
-                '''
-                start = city_locations[state.current_city]
-                state.destination_city = int(chr(action))
-                destination = city_locations[state.destination_city]
-                player_sprite.set_location(city_locations[state.current_city])
-                state.travelling = True
-                print(
-                    "Travelling from", state.current_city, "to", state.destination_city
-                )
+
+                destination_city = int(chr(action))
+                if routes[state.current_city][destination_city] is not None:
+                    # Route exists
+                    state.destination_city = destination_city
+                    player_sprite.set_location(city_locations[state.current_city])
+                    state.travelling = True
+                    print("Travelling from", state.current_city, "to", state.destination_city)
+                else:
+                    # Route does not exist
+                    print("No route exists between", state.current_city, "and", destination_city)
 
         screen.fill(black)
         screen.blit(landscape_surface, (0, 0))
